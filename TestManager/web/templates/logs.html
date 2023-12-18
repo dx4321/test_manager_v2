@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<style>
+    body {
+        margin: 0;
+    }
+    #header {
+        position: sticky;
+        top: 0;
+        background-color: #f1f1f1;
+        padding: 10px;
+        z-index: 2;
+    }
+    #content {
+        margin-top: 70px;
+        padding-right: 70%;
+    }
+    #log-frame {
+        width: 70%;
+        position: fixed;
+        top: 50px;
+        right: 0;
+        bottom: 0;
+        background-color: #f1f1f1;
+        overflow-y: auto;
+        z-index: 1;
+    }
+    #log-iframe {
+        width: 100%;
+        height: 100%;
+        white-space: pre-wrap; /* Добавьте эту строку */
+        word-break: break-all; /* Добавьте эту строку */
+    }
+    #log-file-name {
+        padding: 10px;
+        background-color: #e9e9e9;
+        font-weight: bold;
+    }
+</style>
+<h1>Отчеты о прохождении тестов</h1>
+
+<div id="content">
+    <p>Каталог:
+        <a href="/logs">Корень</a> /
+        {% for path in full_path %}
+            <a href="{{ path.path }}">{{ path.name }}</a> /
+        {% endfor %}
+    </p>
+
+    <ul>
+        {% for folder in folders %}
+        <li><a href="/logs?folder={{ current_folder }}/{{ folder }}">{{ folder }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <ul>
+        {% for file in files %}
+            <li>
+                {% if file.endswith('.html') %}
+                    <a href="#" class="log-file-link" data-file="/{{ file }}">{{ file }}</a> <!-- Выводим URL в фрейме -->
+                {% elif file.endswith('.zip') or file.endswith('.pdf') %}
+                    <a href="/download?file={{ current_folder }}/{{ file }}" download>{{ file }}</a>
+                {% elif file.endswith('.log') %}
+                    <a href="#" class="log-file-link" data-file="{{ current_folder }}/{{ file }}">{{ file }}</a>
+                {% else %}
+                    {{ file }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if report_files.items()|length > 0 %}
+        <h2>Отчеты по сборке {{ build_number }}</h2>
+        {% for report_name, files in report_files.items() %}
+            <h3>{{ report_name }}</h3>
+            <ul>
+                {% for file in files %}
+                    <li>
+                        {% if file.endswith('.html') %}
+                            <a href="#" class="log-file-link" data-file="{{ file }}">Открыть отчет HTML</a> <!-- Выводим URL в фрейме -->
+                        {% elif file.endswith('.zip') %}
+                            <a href="/download?file={{ current_folder }}/{{ file }}" download>Скачать ZIP архив</a>
+                        {% elif file.endswith('.pdf') %}
+                            <a href="/download?file={{ current_folder }}/{{ file }}" download>Скачать отчет в PDF формате</a>
+                        {% elif file.endswith('.log') %}
+                            <a href="#" class="log-file-link" data-file="{{ current_folder }}/{{ file }}">Открыть лог для просмотра</a>
+                        {% elif file.endswith('.rxzlog') %}
+                            <a href="/download?file={{ current_folder }}/{{ file }}" download>Скачать отчет для windows</a>
+                        {% else %}
+                        {{ file }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+    <br>
+    <br>
+    <br>
+</div>
+
+<div id="log-frame" style="display: none;">
+    <div id="log-file-name"></div>
+    <iframe id="log-iframe" ></iframe>
+</div>
+
+<script>
+    const logFileLinks = document.querySelectorAll('.log-file-link');
+    const logFrame = document.getElementById('log-frame');
+    const logIframe = document.getElementById('log-iframe');
+
+    const logFileName = document.getElementById('log-file-name');
+
+    logFileLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            const file = link.getAttribute('data-file');
+            const filePathArray = file.split('/');
+            const folderNameHtml = filePathArray[filePathArray.length - 2]; // Получаем название папки
+            const fileNameHtml = filePathArray[filePathArray.length - 1]; // Получаем название файла
+
+
+            if (file.endsWith('.html')) {
+                logIframe.src = file.slice(1); // Устанавливаем источник для фрейма
+                const folderName = file.split('\\').pop().split('/').slice(0, -1).join('/'); // Получаем название папки
+                logFileName.textContent = folderName; // Устанавливаем название папки
+            } else if (file.endsWith('.log')) {
+                logIframe.src = `/read_log?file=${file}`; // Устанавливаем источник для фрейма
+                logFileName.textContent = fileNameHtml;
+            }
+            logFrame.style.display = 'block';
+        });
+    });
+</script>
+
+{% endblock %}

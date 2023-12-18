@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<head>
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='styles.css') }}"></script>
+</head>
+  <h1>Страница конфигурации</h1>
+
+    <div id="submenu">
+        <ul>
+            <li><a href="/config/mailing_module">Модуль отправки на почту</a></li>
+            <li><a href="/config/vsphere_module">Модуль VSphere</a></li>
+            <li><a href="/config/teamcity_config">Модуль настройки TeamCity</a></li>
+            <li><a href="/config/programs_for_tests">Модуль Очередь задач на тестирование</a></li>
+            <li><a href="/config/scheduler">Модуль настройки планировщика</a></li>
+            <li><a href="/config/ranorex">Модуль настройки Ranorex</a></li>
+        </ul>
+    </div>
+
+
+  <h2>Выбрать конфиг</h2>
+  <form method="post" action="/config">
+    <select name="config">
+      {% for config in configs %}
+        <option value="{{ config }}">{{ config }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Выбрать конфиг</button>
+  </form>
+
+  <h2>Создать новый конфиг</h2>
+  <form method="post" action="/config/create">
+    <input type="text" name="new_config_name" placeholder="Название нового конфига">
+    <button type="submit">Создать конфиг</button>
+  </form>
+
+
+{% endblock %}
+

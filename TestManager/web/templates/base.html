@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Управление тестированием</title>
+    <!-- Вставьте здесь ваши стили CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="menu">
+        <ul>
+            <li><a href="/">Главная</a></li>
+            <li><a href="/config">Конфигурация</a></li>
+            <li><a href="/logs">Логи</a></li>
+        </ul>
+    </div>
+
+    <!-- Вставьте здесь содержимое каждой страницы -->
+    {% block content %}{% endblock %}
+
+
+    <div id="footer">
+        bolid.ru
+    </div>
+    <!-- Вставьте здесь ваши скрипты JavaScript -->
+</body>
+</html>

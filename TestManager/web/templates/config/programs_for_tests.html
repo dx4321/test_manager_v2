@@ -1,0 +1,212 @@
+{% extends 'config.html' %}
+
+{% block content %}
+<head>
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='styles.css') }}"></script>
+</head>
+
+  <h1>Страница конфигурации</h1>
+
+    <div id="submenu">
+        <ul>
+            <li><a href="/config/mailing_module">Модуль отправки на почту</a></li>
+            <li><a href="/config/vsphere_module">Модуль VSphere</a></li>
+            <li><a href="/config/teamcity_config">Модуль настройки TeamCity</a></li>
+            <li><a href="/config/programs_for_tests">Модуль Очередь задач на тестирование</a></li>
+            <li><a href="/config/scheduler">Модуль настройки планировщика</a></li>
+            <li><a href="/config/ranorex">Модуль настройки Ranorex</a></li>
+        </ul>
+    </div>
+
+
+<form method="POST" action="/config/programs_for_tests">
+  <h2>Очередь задач на тестирование</h2>
+
+  <fieldset>
+  <div class="add-program-section">
+    <label class="tooltip">
+      <label>Название программы:</label>
+      <input type="text" name="new_program_name">
+      <span class="tooltiptext">Должно соответствовать названию ПО из модуля TeamCity, так же если у по должны быть получатели на почту отчетов, названия должны соответствовать и тому ПО которое указано в модуле получателей на почту</span>
+    </label>
+
+      <button class="add-button" onclick="addProgram(event)">Добавить программу</button>
+  </div>
+  </fieldset>
+
+    <br>
+    <br>
+    <br>
+
+    <div class="form-container">
+  {% for program in config['ProgramsForTests'] %}
+    <div class="form-section">
+      <fieldset>
+      <h2>Программа {{ program.name }}</h2>
+    <div class="program program-{{ loop.index }}">
+
+    <label class="tooltip">
+    <label>Название программы:</label>
+        <input type="text" name="{{ program.name }}_name" value="{{ program.name }}">
+         <span class="tooltiptext">Данное название можно изменить, но оно должно соответствовать названию ПО из модуля TeamCity, так же если у по должны быть получатели на почту отчетов, названия должны соответствовать и тому ПО которое указано в модуле получателей на почту</span>
+    </label>
+
+
+    <label>Тесты активны</label>
+    </label>
+
+    <label><input type="radio" name="{{ program.name }}_tests_are_active" value="true"
+                  {% if program.tests_are_active %}checked{% endif %}> Вкл</label>
+
+    <label><input type="radio" name="{{ program.name }}_tests_are_active" value="false"
+                  {% if not program.tests_are_active %}checked{% endif %}> Выкл</label>
+
+    <button class="delete-button" onclick="removeProgram(event)">Удалить программу</button>
+
+    <hr>
+
+    <h2>Тестовые наборы</h2>
+    {% for kit in program.kits %}
+        <fieldset>
+             <h3>Тестовый набор "{{ kit.kit_name }}" для программы {{ program.name }}</h3>
+
+             <label><input type="radio" name="{{ program.name }}_{{ kit.kit_name }}_tests_are_active" value="true"
+                  {% if kit.tests_are_active %}checked{% endif %}> Вкл</label>
+
+            <label><input type="radio" name="{{ program.name }}_{{ kit.kit_name }}_tests_are_active" value="false"
+                          {% if not kit.tests_are_active %}checked{% endif %}> Выкл</label>
+            <details>
+
+        <hr>
+        <div class="kit"> <!-- Добавлен класс "kit" к div -->
+        <label class="tooltip">
+          <label>Имя набора тестов:</label>
+          <input type="text" name="{{ program.name }}_{{ kit.kit_name }}_kit_name" value="{{ kit.kit_name }}">
+          <span class="tooltiptext">Данное название отвечает за набор тестов который может делиться на несколько наборов состоящих из 2-х блоков - VMS и Stands</span>
+        </label>
+
+        <label class="tooltip">
+          <label>Снапшот:</label>
+          <input type="text" name="{{ program.name }}_{{ kit.kit_name }}_snapshot_name" value="{{ kit.snapshot_name }}">
+          <span class="tooltiptext">Данное название можно изменить, но оно должно соответствовать названию снапшота на заранее подготовленной виртуальной машине, если на виртуальной машине нет такого снапшота то будет ошибка</span>
+        </label>
+
+        <label class="tooltip">
+          <label>Путь до теста на установку:</label>
+          <input type="text" name="{{ program.name }}_{{ kit.kit_name }}_path_to_test_install_check_license" value="{{ kit.path_to_test_install_check_license }}">
+            <span class="tooltiptext">Нужно указать путь к скомпилированным тестам на установку
+            <br> Текущий путь до теста - "{{ kit.path_to_test_install_check_license }}"           </span>
+        </label>
+
+        <button class="delete-button" onclick="removeKit(event)">Удалить набор тестов</button>
+          <div class="vm-container">
+            {% if kit.vms|length > 0 %}
+
+            <h3>Виртуальные машины на которых произойдет установка:</h3>
+              {% for vm in kit.vms %}
+                <div class="vm">
+                  <label class="tooltip">
+                  <input type="text" name="{{ program.name }}_{{ kit.kit_name }}_vms[{{ loop.index0 }}]" value="{{ vm }}">
+                    <span class="tooltiptext">Изменить или указать название ВМ на которой пройдет установка, а после пройдет тестирование на стендах, если стенды будут указаны</span>
+                  </label>
+                  <button class="delete-button" onclick="removeVM2(event)">Удалить VM</button>
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          <hr>
+          <div id="new_vm_section2">
+            <h3>Добавить виртуальную машину</h3>
+            <label class="tooltip">
+            <label>Имя VM:</label>
+            <input type="text" id="new_vm_name2" name="{{ program.name }}_{{ kit.kit_name }}_vms">
+              <span class="tooltiptext">указать название ВМ на которой пройдет установка, а после пройдет тестирование на стендах, если стенды будут указаны</span>
+            </label>
+            <button class="add-button" onclick="addVM2(event)">Добавить VM</button>
+          </div>
+          <hr>
+
+          {% if kit.stands|length > 0 %}
+            <h3>Добавить стенд:</h3>
+          {% endif %}
+            {% for stand in kit.stands %}
+              <div class="stand">
+                <label class="tooltip">
+                <label>Название стенда:</label>
+                <input type="text" name="{{ program.name }}_{{ kit.kit_name }}_stand_name[{{ loop.index0 }}]" value="{{ stand.stand_name }}">
+                  <span class="tooltiptext">Указать название стенда на котором произойдут проверки. Если проверки не должны проходить одновременно на одном и том же стенде, то нужно указать отличающееся название стенда от того на котором они не должны проходить</span>
+                </label>
+
+                <label class="tooltip">
+                  <label>Путь до теста:</label>
+                <input type="text" name="{{ program.name }}_{{ kit.kit_name }}_path_to_test[{{ loop.index0 }}]" value="{{ stand.path_to_test }}">
+                  <span class="tooltiptext">Указать или изменить путь до скомпилированного теста ranorex
+                      <br> Текущий путь до теста - "{{ kit.path_to_test_install_check_license }}"           </span>
+                </label>
+                  <button class="delete-button" onclick="removeStand(event)">Удалить стенд</button>
+              </div>
+            {% endfor %}
+            <div class="stand">
+              <label class="tooltip">
+              <label>Название стенда:</label>
+              <input type="text" name="{{ program.name }}_{{ kit.kit_name }}_stand_name[{{ kit.stands|length }}]">
+               <span class="tooltiptext">Указать название стенда на котором произойдут проверки. Если проверки не должны проходить одновременно на одном и том же стенде, то нужно указать отличающееся название стенда от того на котором они не должны проходить</span>
+              </label>
+
+              <label class="tooltip">
+              <label>Путь до теста:</label>
+              <input type="text" name="{{ program.name }}_{{ kit.kit_name }}_path_to_test[{{ kit.stands|length }}]">
+                <span class="tooltiptext">Указать или изменить путь до скомпилированного теста ranorex
+                      <br> Текущий путь до теста - "{{ kit.path_to_test_install_check_license }}"           </span>
+                </label>
+            </div>
+            <button class="add-button" onclick="addStand(event)">Добавить стенд</button>
+            </div>
+        </details>
+        </fieldset>
+            <br>
+    {% endfor %}
+    <div class="add-kit-section">
+        <hr>
+        <h3>Добавить набор тестов</h3>
+
+        <label class="tooltip">
+            Имя набора тестов:
+            <input type="text" id="new_kit_name" name="{{ program.name }}_new_kit_name">
+            <span class="tooltiptext">
+                Данное название отвечает за набор тестов который может делиться на несколько наборов состоящих из 2-х блоков - VMS и Stands<br><br>
+                1 - ый блок указывается на каких виртуальных машинах необходимо провести установку ПО, установка происходит по скомпилированному тесту указанному в соответствующем поле<br><br>
+                2 - ой блок сделан для прохождения тестов на клонах с подготовленными ВМ и установленным софтом на условных стендах (это некая площадка в которую входит закрепленное оборудование, должно использоваться только на этом стенде и больше нигде)<br>
+                соответственно если мы хотим запускать паралельно тесты на стендах, то у стендов должны быть разные названия, если названия будут одинаковыми то тесты будут проходить последовательно
+            </span>
+        </label>
+
+        <label class="tooltip">
+            <label>Название снапшота:</label>
+            <input type="text" id="new_snapshot_name" name="{{ program.name }}_new_snapshot_name">
+             <span class="tooltiptext">Данное название можно изменить, но оно должно соответствовать названию снапшота на заранее подготовленной виртуальной машине, если на виртуальной машине нет такого снапшота то будет ошибка</span>
+        </label>
+
+        <label class="tooltip">
+            Путь до теста на установку:
+            <input type="text" id="new_kit_path_to_test" name="{{ program.name }}_new_kit_path_to_test">
+            <span class="tooltiptext">Нужно указать путь к скомпилированным тестам на установку</span>
+        </label>
+
+        <button class="add-button" onclick="addKit(event)">Добавить набор тестов</button>
+    </div>
+
+    </div>
+    </fieldset>
+   </div>
+    <br>
+    <br>
+    {% endfor %}
+    </div>
+
+  <center><input type="submit" value="Сохранить"></center>
+</form>
+
+{% endblock %}

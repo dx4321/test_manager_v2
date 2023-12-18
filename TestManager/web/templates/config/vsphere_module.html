@@ -1,0 +1,150 @@
+{% extends 'config.html' %}
+
+{% block content %}
+
+<head>
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='styles.css') }}"></script>
+</head>
+
+  <h1>Страница конфигурации</h1>
+
+    <div id="submenu">
+        <ul>
+            <li><a href="/config/mailing_module">Модуль отправки на почту</a></li>
+            <li><a href="/config/vsphere_module">Модуль VSphere</a></li>
+            <li><a href="/config/teamcity_config">Модуль настройки TeamCity</a></li>
+            <li><a href="/config/programs_for_tests">Модуль Очередь задач на тестирование</a></li>
+            <li><a href="/config/scheduler">Модуль настройки планировщика</a></li>
+            <li><a href="/config/ranorex">Модуль настройки Ranorex</a></li>
+        </ul>
+    </div>
+
+
+
+<form method="POST" action="/config/vsphere_module">
+    <h2>Модуль VSphere</h2>
+
+    <hr>
+    <h3>Настройки сервера</h3>
+
+    <label class="tooltip">
+    <label>Хост:</label>
+    <input type="text" name="vsphere_host" value="{{ config['VSphere']['host'] }}">
+      <span class="tooltiptext">Нужно указать IP адрес сервера VSphere</span>
+    </label>
+
+    <label class="tooltip">
+    <label>Пользователь:</label>
+    <input type="text" name="vsphere_user" value="{{ config['VSphere']['user'] }}">
+    <span class="tooltiptext">Нужно указать логин пользователя Vsphere "user@domen.local"</span>
+    </label>
+
+    <label class="tooltip">
+    <label>Пароль:</label>
+    <input type="password" name="vsphere_password" value="{{ config['VSphere']['password'] }}">
+    <span class="tooltiptext">Нужно указать пароль пользователя VSphere</span>
+    </label>
+    <hr>
+
+    <label class="tooltip">
+    <label>Диск для создания новых вм:</label>
+    <input type="text" name="vsphere_data_store" value="{{ config['VSphere']['data_store'] }}">
+    <span class="tooltiptext">Нужно указать диск на который будут создаваться клоны по снапшотам</span>
+    </label>
+    <hr>
+
+    <h3>Авторизация для всех ВМ:</h3>
+
+
+    {% for vm_name, auth_info in config['VSphere']['all_vms_and_auth'].items() %}
+      <div class="vm-auth" data-vm-name="{{ vm_name }}">
+
+        <h4>{{ vm_name }}</h4>
+        <details>
+        <label class="tooltip">
+            <label>Логин:</label>
+            <input type="text" name="vsphere_vm_login_{{ vm_name }}" value="{{ auth_info['login'] }}">
+                <span class="tooltiptext">Нужно указать логин от учтенной записи виртуальной машины </span>
+            </label>
+
+            <label class="tooltip">
+            <label>Пароль:</label>
+
+            <input type="password" name="vsphere_vm_password_{{ vm_name }}" value="{{ auth_info['password'] }}">
+              <span class="tooltiptext">Нужно указать пароль от учтенной записи виртуальной машины </span>
+            </label>
+            <button class="delete-button" onclick="removeVM('{{ vm_name }}')">Удалить {{ vm_name }}</button>
+        </details>
+        <hr>
+      </div>
+    {% endfor %}
+      <div id="new_vm_section">
+      <h3>Добавить VM</h3>
+
+      <label class="tooltip">
+      <label>Имя VM:</label>
+      <input type="text" id="new_vm_name" name="new_vm_name">
+        <span class="tooltiptext">Нужно указать название виртуальной машины </span>
+      </label>
+
+      <label class="tooltip">
+      <label>Логин:</label>
+      <input type="text" id="new_vm_login" name="new_vm_login">
+          <span class="tooltiptext">Нужно указать логин от учтенной записи виртуальной машины </span>
+      </label>
+
+      <label class="tooltip">
+      <label>Пароль:</label>
+      <input type="password" id="new_vm_password" name="new_vm_password">
+        <span class="tooltiptext">Нужно указать пароль от учтенной записи виртуальной машины </span>
+      </label>
+
+      <button class="add-button" onclick="addVM()">Добавить VM</button>
+      </div>
+    <hr>
+
+    <h3>Единое название на всех вм адаптера</h3>
+
+    <label class="tooltip">
+    <label>Имя сетевого адаптера:</label>
+    <input type="text" name="vsphere_network_card_name" value="{{ config['VSphere']['network_card_name'] }}">
+       <span class="tooltiptext">Указать заранее настроенное название на всех вм сетевого адаптера</span>
+    </label>
+
+    <hr>
+    <h3>Пул статических IP-адресов:</h3>
+    {% for ip_address in config['VSphere']['static_ip_address_pool'] %}
+      <div class="input-container">
+        <label class="tooltip">
+          <input type="text" name="vsphere_static_ip" value="{{ ip_address }}">
+        <span class="tooltiptext">Указать статический ip адрес (он будет автоматический переиспользоваться в тестах)</span>
+        </label>
+
+        <button class="delete-button" onclick="removeField(this)">Удалить</button>
+      </div>
+    {% endfor %}
+    <div class="input-container">
+      <input type="text" id="new_static_ip" name="new_static_ip">
+      <button class="add-button" onclick="addField()">Добавить IP-адрес</button>
+    </div>
+    <hr>
+    <h3>Настройки сети</h3>
+    <label class="tooltip">
+    <label>Шлюз:</label>
+    <input type="text" name="vsphere_gateway" value="{{ config['VSphere']['gateway'] }}">
+      <span class="tooltiptext">Указать шлюз который будет пробрасываться в настройках на виртуальной машине, для общего доступа в локальную сеть</span>
+    </label>
+
+    <label class="tooltip">
+    <label>DNS:</label>
+    <input type="text" name="vsphere_dns" value="{{ config['VSphere']['dns'] }}">
+      <span class="tooltiptext">Указать DNS который будет пробрасываться в настройках на виртуальной машине, для общего доступа в локальную сеть</span>
+    </label>
+    <hr>
+
+    <center><input type="submit" value="Сохранить"></center>
+  </form>
+
+
+{% endblock %}

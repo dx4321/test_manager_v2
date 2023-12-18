@@ -1,0 +1,46 @@
+{% extends 'config.html' %}
+
+{% block content %}
+<head>
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='styles.css') }}"></script>
+</head>
+
+  <h1>Страница конфигурации</h1>
+
+    <div id="submenu">
+        <ul>
+            <li><a href="/config/mailing_module">Модуль отправки на почту</a></li>
+            <li><a href="/config/vsphere_module">Модуль VSphere</a></li>
+            <li><a href="/config/teamcity_config">Модуль настройки TeamCity</a></li>
+            <li><a href="/config/programs_for_tests">Модуль Очередь задач на тестирование</a></li>
+            <li><a href="/config/scheduler">Модуль настройки планировщика</a></li>
+            <li><a href="/config/ranorex">Модуль настройки Ranorex</a></li>
+        </ul>
+    </div>
+
+
+ <form method="POST" action="/config/scheduler">
+  <h2>Модуль настройки планировщика</h2>
+
+  <hr>
+  <h3>Планировщик</h3>
+    <label class="tooltip">
+    <label>Время активации тестов:</label>
+    <input type="text" name="scheduler_time_for_test_activate" value="{{ config['Scheduler']['TimeForTestActivate'] }}"><!-- Значение TimeForTestActivate будет отображаться здесь -->
+    <span class="tooltiptext">
+      Указать время ежедневного запуска тестов в 24 часовом формате. <br><br>
+      Пример "01:50"
+    </span>
+      </label>
+
+    <label><input type="radio" name="activation_option" value="true"
+                  {% if config.Scheduler.ActivateByTime %}checked{% endif %}> Активировать по времени</label>
+
+    <label><input type="radio" name="activation_option" value="false"
+                  {% if not config.Scheduler.ActivateByTime %}checked{% endif %}> Запустить сразу</label>
+
+    <center><input type="submit" value="Сохранить"></center>
+  </form>
+
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'config.html' %}
+
+{% block content %}
+<head>
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='styles.css') }}"></script>
+</head>
+
+  <h1>Страница конфигурации</h1>
+
+    <div id="submenu">
+        <ul>
+            <li><a href="/config/mailing_module">Модуль отправки на почту</a></li>
+            <li><a href="/config/vsphere_module">Модуль VSphere</a></li>
+            <li><a href="/config/teamcity_config">Модуль настройки TeamCity</a></li>
+            <li><a href="/config/programs_for_tests">Модуль Очередь задач на тестирование</a></li>
+            <li><a href="/config/scheduler">Модуль настройки планировщика</a></li>
+            <li><a href="/config/ranorex">Модуль настройки Ranorex</a></li>
+        </ul>
+    </div>
+
+
+<form method="POST" action="/config/teamcity_config">
+  <h2>Модуль настройки TeamCity</h2>
+
+  <hr>
+  <h3>Настройки токена</h3>
+
+  <label class="tooltip">
+  <label>Токен:</label>
+  <input type="text" name="teamcity_token" value="{{ config['TeamCity']['token'] }}">
+    <span class="tooltiptext">Токен учетной записи пользователя TeamCity</span>
+  </label>
+
+  <label><input type="radio" name="activation_option" value="true"
+                  {% if config.TeamCity.check_for_the_latest_release %}checked{% endif %}> Проверять выход новых сборок </label>
+
+  <label><input type="radio" name="activation_option" value="false"
+                  {% if not config.TeamCity.check_for_the_latest_release %}checked{% endif %}> Не проверять выход новых сборок </label>
+
+  <hr>
+  <h3>Скачивание последних сборок и выход последних сборок</h3>
+  {% for program in config['TeamCity']['for_test_programs_info'] %}
+    <div class="program-info">
+
+      <label class="tooltip">
+      <label>Название софта:</label>
+      <input type="text" name="program[{{ loop.index0 }}][soft_name]" value="{{ program['soft_name'] }}">
+       <span class="tooltiptext">Нужно указать название программы такое же как и при указании получателей отчетов почты</span>
+      </label>
+
+      <label class="tooltip">
+      <label>Запрос на последнюю сборку:</label>
+      <input type="text" name="program[{{ loop.index0 }}][last_build]" value="{{ program['last_build'] }}">
+        <span class="tooltiptext">Нужно сделать REST запрос к api teamcity для получения нужной сборки в нужной ветке, с фильтрами:
+          сборка выполнена успешно и отображать только последнюю сборку</span>
+      </label>
+
+      <label class="tooltip">
+      <label>Полный путь до папки в которую будет скачиваться последняя сборка:</label>
+      <input type="text" name="program[{{ loop.index0 }}][distro_full_path]" value="{{ program['distro_full_path_for_download'] }}">
+       <span class="tooltiptext">Нужно указать сетевую папку из которой тесты в процессе тестирования будут устанавливать сборку</span>
+      </label>
+
+      <button class="delete-button" onclick="removeProgramInfo('{{ program['soft_name'] }}')">Удалить</button>
+    </div>
+  <hr>
+  {% endfor %}
+  <!-- Поля для добавления нового софта -->
+  <div id="new-program-info">
+    <h3>Добавление софта</h3>
+
+    <label class="tooltip">
+    <label>Название софта:</label>
+    <input type="text" id="program_name_input" value="">
+     <span class="tooltiptext">Нужно указать название программы такое же как и при указании получателей отчетов почты</span>
+    </label>
+
+    <label>Запрос на последнюю сборку:</label>
+
+    <label class="tooltip">
+    <input type="text" id="build_request_input" value="">
+      <span class="tooltiptext">Нужно сделать REST запрос к api teamcity для получения нужной сборки в нужной ветке, с фильтрами:
+    сборка выполнена успешно и отображать только последнюю сборку</span>
+    </label>
+
+    <label class="tooltip">
+    <label>Полный путь до папки в которую будет скачиваться последняя сборка:</label>
+    <input type="text" id="download_path_input" value="">
+     <span class="tooltiptext">Нужно указать сетевую папку из которой тесты в процессе тестирования будут устанавливать сборку</span>
+    </label>
+
+    <button class="add-button" onclick="addNewProgram()" type="button">Добавить</button>
+  </div>
+  <hr>
+
+  <label class="tooltip">
+  <label>Путь к файлу истории:</label>
+  <input type="text" name="history_file_path" value="{{ config['TeamCity']['HistoryFilePath'] }}">
+    <span class="tooltiptext">Указать полный путь до эксель файла в который будет записываться история тестирования сборок</span>
+  </label>
+
+  <center><input type="submit" value="Сохранить"></center>
+</form>
+
+
+
+
+{% endblock %}

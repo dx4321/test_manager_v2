@@ -1,0 +1,163 @@
+# Название конфига для запуска должно быть CONFIG.yaml
+
+Email:
+  server: mail-serv.bolid.ru
+  port: 25
+  send_from: fishzon@bolid.ru
+  login: fishzon
+  password: xxxxxxxx
+  soft:
+    orion_pro:
+      - fishzon@bolid.ru
+      - matsievskii@bolid.ru
+      - ershova_m@bolid.ru
+      - ganchev@bolid.ru
+      - api@bolid.ru # Петрович
+      - zaharievskaya@bolid.ru
+      - sinitskii@bolid.ru
+      - fedotova@bolid.ru
+      - ruzanov_d@bolid.ru
+    video_lite:
+      - fishzon@bolid.ru
+      - matsievskii@bolid.ru
+      - kalinov@bolid.ru
+      - ershova_m@bolid.ru
+      - ganchev@bolid.ru
+  network_folder: \\192.168.202.33\smb\Автотестирование\logs
+
+VSphere:
+  host: 192.168.202.4
+  user: fishzone@vsphere.local
+  password: xxxxxxxx
+  data_store: Disk_5
+  all_vms_and_auth:
+    Fishzone_Win11x64:
+      login: vmware
+      password: xxxxxxxx
+    Fishzone_Win2022:
+      login: vmware
+      password: xxxxxxxx
+    Fishzone_Win7x64:
+        login: vmware
+        password: xxxxxxxx
+    Fishzone_Win8.1x64:
+        login: vmware
+        password: xxxxxxxx
+    Fishzone_Win2012r2:
+        login: vmware
+        password: xxxxxxxx
+    Fishzone_Win2016:
+        login: vmware
+        password: xxxxxxxx
+    Fishzone_Win2019:
+        login: vmware
+        password: xxxxxxxx
+    Fishzone_win2012:
+        login: vmware
+        password: xxxxxxxx
+    Fishzone_Win10x64:
+      login: vmware
+      password: xxxxxxxx
+  snapshot_name: Все готово к автотестам
+  network_card_name: ethernet
+  static_ip_address_pool:
+    - 192.168.202.140
+    - 192.168.202.141
+    - 192.168.202.142
+    - 192.168.202.143
+    - 192.168.202.144
+    - 192.168.202.145
+    - 192.168.202.146
+    - 192.168.202.147
+    - 192.168.202.148
+    - 192.168.202.149
+  gateway: 192.168.202.1
+  dns: 192.168.11.10
+
+TeamCity:
+  token: eyJ0eXAiOiAiVENWMiJ9.RXdFM0w0MUhWUXN2WnliVDdELUJ1ZE1HcWdZ.ODNiMzg4YzktODdhNC00MmMxLTlhMmUtMGI5Mzc2ODIwYTg2
+  for_test_programs_info:
+    - soft_name: orion_pro
+      last_build: "http://teamcity.bolid.ru/app/rest/builds/?locator=branch:feature_sirius_import_export1,status:SUCCESS,state:finished,count:1,buildType:(id:OrionPro_OrionDistro_DistroBuild)"
+      distro_full_path_for_download: \\192.168.202.33\smb\Автотестирование\distro_download\OrionProSetup1_20_3_8.exe
+    - soft_name: video_lite
+      last_build: "http://teamcity.bolid.ru/app/rest/builds/?locator=buildType:OrionVideo_OrionVideoLiteDistrib_BuildRc,branch:rc_orionvideolite_1_4_4,status:SUCCESS,count:1,state:finished"
+      distro_full_path_for_download: \\192.168.202.33\smb\Автотестирование\distro_download\OrionVideoLiteSetup.exe
+  HistoryFilePath: \\192.168.202.33\smb\Автотестирование\bilds_history.xlsx
+
+
+Ranorex:
+  all_licenses: 2
+  agent_port: 63211
+  dir_to_logs: \\192.168.202.33\smb\Автотестирование\logs
+  path_to_pdf_converter: C:\Users\fishzon\PycharmProjects\test99\pdf report module\Ranorex.PDF.exe
+
+ProgramsForTests:
+  #### ORION_PRO ###### Приоритет задается последовательно начиная с первой
+  - name: orion_pro
+    last_build: inTeamCityGetInModule # получим из тимсити при проверке последняя ли это сборка
+    snapshot_name: Все готово к автотестам
+
+    kits:
+      - kit_name: win_preparation_1
+        # Для выполнения 1-ого блока должна "блокироваться очередь", перед его выполнением создается блок 0
+        path_to_test_install_check_license: \\192.168.202.33\smb\Автотестирование\OrionPro\Скачивание установка\ADB_06_2022.exe
+        vms:
+          - Fishzone_Win10x64
+        stands: # Для каждой программы нужно сделать нарезку тестов не более чем по часу
+          - stand_name: s10_1
+            path_to_test: \\192.168.202.33\smb\Автотестирование\OrionPro\Тесты на вин 10_1\ADB_06_2022.exe
+          - stand_name: s10_2
+            path_to_test: \\192.168.202.33\smb\Автотестирование\OrionPro\Тесты на вин 10_2\ADB_06_2022.exe
+
+      - kit_name: win_preparation_2
+        path_to_test_install_check_license: \\192.168.202.33\smb\Автотестирование\OrionPro\Скачивание установка\ADB_06_2022.exe
+        vms:
+          - Fishzone_Win11x64
+          - Fishzone_Win2022
+          - Fishzone_Win7x64
+          - Fishzone_Win8.1x64
+          - Fishzone_Win2012r2
+          - Fishzone_Win2016
+          - Fishzone_Win2019
+          - Fishzone_win2012
+        stands: # Для каждой программы нужно сделать нарезку тестов не более чем по часу
+          - stand_name: use_os
+            path_to_test: \\192.168.202.33\smb\Автотестирование\OrionPro\тесты на все ОС\ADB_06_2022.exe
+
+  #### VIDEO_LITE #####
+  - name: video_lite
+    last_build: inTeamCityGetInModule # получим из тимсити при проверке последняя ли это сборка
+    snapshot_name: Все готово к автотестам
+    kits:
+      - kit_name: win_preparation_3
+        # Для выполнения 1-ого блока должна "блокироваться очередь", перед его выполнением создается блок 0
+        path_to_test_install_check_license: \\192.168.202.33\smb\Автотестирование\OrionVideoLight\Скачивание, Установка, Проверка Лицензии\OrionVideoLightRC.exe
+        vms:
+          - Fishzone_Win10x64
+        stands: # Для каждой программы нужно сделать нарезку тестов не более чем по часу
+          - stand_name: authorization
+            path_to_test: \\192.168.202.33\smb\Автотестирование\OrionVideoLight\Основные тесты\Авторизация\OrionVideoLightRC.exe
+          - stand_name: verification1
+            path_to_test: \\192.168.202.33\smb\Автотестирование\OrionVideoLight\Основные тесты\Проверка работы с камерами 1\OrionVideoLightRC.exe
+          - stand_name: verification2_3
+            path_to_test: \\192.168.202.33\smb\Автотестирование\OrionVideoLight\Основные тесты\Проверка работы с камерами 2 и 3\OrionVideoLightRC.exe
+          - stand_name: express
+            path_to_test: \\192.168.202.33\smb\Автотестирование\OrionVideoLight\Основные тесты\Экспресс на автоматизацию\OrionVideoLightRC.exe
+
+      - kit_name: win_preparation_4
+        path_to_test_install_check_license: \\192.168.202.33\smb\Автотестирование\OrionVideoLight\Скачивание, Установка, Проверка Лицензии\OrionVideoLightRC.exe
+        vms:
+          - Fishzone_Win11x64
+          - Fishzone_Win2022
+          - Fishzone_Win7x64
+          - Fishzone_Win8.1x64
+          - Fishzone_Win2012r2
+          - Fishzone_Win2016
+          - Fishzone_Win2019
+          - Fishzone_win2012
+
+Scheduler:
+  TimeForTestActivate: 01:00
+  ActivateByTime: True # активация либо по времени, либо сейчас
+#  ActivateByTime: False # активация либо по времени, либо сейчас

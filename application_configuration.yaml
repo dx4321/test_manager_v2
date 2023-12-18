@@ -1,0 +1,6 @@
+current_config_is_selected: C:\Users\fishzon\PycharmProjects\test_manager_v2\TestManager\configs\CONFIG.yaml
+path_to_the_config_list_folder: C:\Users\fishzon\PycharmProjects\test_manager_v2\TestManager\configs
+ip_address: 0.0.0.0
+port: 5000
+debug: true
+

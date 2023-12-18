@@ -1,0 +1,105 @@
+Email:
+  server: mail-serv.bolid.ru
+  port: 25
+  send_from: fishzon@bolid.ru
+  login: fishzon
+  password: password
+  soft:
+    orion_pro:
+    - fishzon@bolid.ru
+    - matsievskii@bolid.ru
+VSphere:
+  host: 192.168.202.4
+  user: fishzone@vsphere.local
+  password: password
+  data_store: Disk_5
+  all_vms_and_auth:
+    Fishzone_Win11x64:
+      login: vmware
+      password: password
+    Fishzone_Win2022:
+      login: vmware
+      password: password
+    Fishzone_Win7x64:
+      login: vmware
+      password: password
+    Fishzone_Win8_1x64:
+      login: vmware
+      password: password
+    Fishzone_Win2012r2:
+      login: vmware
+      password: password
+    Fishzone_Win2016:
+      login: vmware
+      password: password
+    Fishzone_Win2019:
+      login: vmware
+      password: password
+    Fishzone_win2012:
+      login: vmware
+      password: password
+    Fishzone_Win10x64:
+      login: vmware
+      password: password
+  network_card_name: ethernet
+  static_ip_address_pool:
+  - 192.168.202.140
+  - 192.168.202.141
+  - 192.168.202.142
+  - 192.168.202.143
+  - 192.168.202.144
+  - 192.168.202.145
+  - 192.168.202.146
+  - 192.168.202.147
+  - 192.168.202.148
+  - 192.168.202.149
+  - 192.168.202.138
+  - 192.168.202.139
+  - 192.168.202.116
+  - 192.168.202.117
+  - 192.168.202.118
+  - 192.168.202.119
+  - 192.168.202.120
+  - 192.168.202.121
+  gateway: 192.168.202.1
+  dns: 192.168.11.10
+TeamCity:
+  token:
+    token_XXX
+  for_test_programs_info:
+  - soft_name: orion_pro
+    last_build:
+      http://teamcity.bolid.ru/app/rest/buildTypes/id:OrionPro_OrionDistro_DistroBuild/builds?count=1&locator=running:any,branch:feature_sirius_import_export1,status:success
+    distro_full_path_for_download: \\192.168.202.15\ftp\1. Автоматизация\smb\Автотестирование\distro_download\OrionProSetup1_20_3_8.exe
+  HistoryFilePath: \\192.168.202.15\ftp\1. Автоматизация\smb\Автотестирование\bilds_history_test.db
+Ranorex:
+  all_licenses: '3'
+  agent_port: '63211'
+  dir_to_logs: \\192.168.202.15\ftp\1. Автоматизация\smb\Автотестирование\logs
+  path_to_pdf_converter:
+    C:\Users\fishzon\PycharmProjects\test_manager_v2\TestManager\main_logic\utils\converter\pdf
+    report module\Ranorex.PDF.exe
+ProgramsForTests:
+- name: orion_pro
+  tests_are_active: true
+  last_build: inTeamCityGetInModule
+  kits:
+  - kit_name: sql_preparation_win2011_sql_2019
+    tests_are_active: true
+    snapshot_name: sql2019
+    path_to_test_install_check_license: \\192.168.202.15\ftp\1. Автоматизация\smb\Автотестирование\OrionPro\Тесты
+      на предустановленные SQL\ADB_06_2022.exe
+    vms:
+    - Fishzone_Win11x64
+    stands: []
+  - kit_name: sql_preparation_win2011
+    tests_are_active: true
+    snapshot_name: ranorex10
+    path_to_test_install_check_license: \\192.168.202.15\ftp\1. Автоматизация\smb\Автотестирование\OrionPro\Тесты
+      на предустановленные SQL\ADB_06_2022.exe
+    vms:
+    - Fishzone_Win11x64
+    stands: []
+Scheduler:
+  TimeForTestActivate: 01:00
+  ActivateByTime: false

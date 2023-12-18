@@ -1,0 +1,55 @@
+{% extends 'config.html' %}
+
+{% block content %}
+<head>
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='styles.css') }}"></script>
+</head>
+
+  <h1>Страница конфигурации</h1>
+
+    <div id="submenu">
+        <ul>
+            <li><a href="/config/mailing_module">Модуль отправки на почту</a></li>
+            <li><a href="/config/vsphere_module">Модуль VSphere</a></li>
+            <li><a href="/config/teamcity_config">Модуль настройки TeamCity</a></li>
+            <li><a href="/config/programs_for_tests">Модуль Очередь задач на тестирование</a></li>
+            <li><a href="/config/scheduler">Модуль настройки планировщика</a></li>
+            <li><a href="/config/ranorex">Модуль настройки Ranorex</a></li>
+        </ul>
+    </div>
+
+<form method="POST" action="/config/ranorex">
+  <h2>Ranorex</h2>
+  <hr>
+
+  <label class="tooltip">
+    <label>Всего лицензий:</label>
+    <input type="text" name="all_licenses" value="{{ config['Ranorex']['all_licenses'] }}">
+    <span class="tooltiptext">Указать количество свободных лицензий для агентов Ranorex</span>
+  </label>
+
+  <label class="tooltip">
+    <label>Порт агента:</label>
+    <input type="text" name="agent_port" value="{{ config['Ranorex']['agent_port'] }}">
+    <span class="tooltiptext">Указать пред настроенный порт агентов Ranorex</span>
+  </label>
+
+  <label class="tooltip">
+    <label>Папка с логами:</label>
+    <input type="text" name="dir_to_logs" value="{{ config['Ranorex']['dir_to_logs'] }}">
+    <span class="tooltiptext">Указать полный путь до папки с логами ranorex</span>
+  </label>
+
+  <label class="tooltip">
+    <label>Путь до конвертора:</label>
+    <div>
+      <input type="text" id="path_to_pdf_converter" name="path_to_pdf_converter" value="{{ config['Ranorex']['path_to_pdf_converter'] }}">
+    </div>
+    <span class="tooltiptext">Указать полный путь до файла конвертора из rxzlog в PDF</span>
+  </label>
+
+  <center><input type="submit" value="Сохранить"></center>
+</form>
+
+{% endblock %}

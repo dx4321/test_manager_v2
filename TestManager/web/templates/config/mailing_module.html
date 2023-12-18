@@ -1,0 +1,109 @@
+{% extends 'config.html' %}
+
+{% block content %}
+
+  <h1>Страница конфигурации</h1>
+
+    <div id="submenu">
+        <ul>
+            <li><a href="/config/mailing_module">Модуль отправки на почту</a></li>
+            <li><a href="/config/vsphere_module">Модуль VSphere</a></li>
+            <li><a href="/config/teamcity_config">Модуль настройки TeamCity</a></li>
+            <li><a href="/config/programs_for_tests">Модуль Очередь задач на тестирование</a></li>
+            <li><a href="/config/scheduler">Модуль настройки планировщика</a></li>
+            <li><a href="/config/ranorex">Модуль настройки Ranorex</a></li>
+        </ul>
+    </div>
+
+<h2>Модуль отправки на почту</h2>
+  <hr>
+
+  <form method="POST" action="/config/mailing_module">
+
+<div class="form-container">
+  <div class="form-section">
+    <h3>Настройки сервера</h3>
+
+    <label class="tooltip">
+      <label>Сервер email:</label>
+    <input type="text" name="email_server" value="{{ config['Email']['server'] }}">
+      <span class="tooltiptext">Введите сервер электронной почты. Поддерживается SMTP со starttls </span>
+    </label>
+
+    <label class="tooltip">
+    <label>Порт email:</label>
+    <input type="text" name="email_port" value="{{ config['Email']['port'] }}">
+      <span class="tooltiptext">Введите SMTP порт | по умолчанию 25 </span>
+    </label>
+
+    <hr>
+    <h3>Отправлять от пользователя</h3>
+    <label class="tooltip">
+    <input type="text" name="email_send_from" value="{{ config['Email']['send_from'] }}">
+      <span class="tooltiptext">Укажите учетную запись целиком user@mail.ru</span>
+    </label>
+
+    <label class="tooltip">
+    <label>Логин:</label>
+    <input type="text" name="email_login" value="{{ config['Email']['login'] }}">
+      <span class="tooltiptext">Укажите учетную запись Вашего пользователя</span>
+    </label>
+
+    <label class="tooltip">
+    <label>Пароль:</label>
+    <input type="password" name="email_password" value="{{ config['Email']['password'] }}">
+      <span class="tooltiptext">Укажите пароль от учетной записи пользователя</span>
+    </label>
+    </div>
+
+    <div class="form-section">
+    <label class="tooltip">
+    <h3>Получатели отчетов за тесты на ПО</h3> <!-- Вывод заголовка "Soft" -->
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+
+    <input type="hidden" name="removed_soft_key" id="removed_soft_key_input">
+      <span class="tooltiptext">Для необходимой программы нужно указать пользователей, которые получат отчеты</span>
+    </label>
+
+    <div class="soft-section">
+      {% for soft_key, soft_value in config['Email']['soft'].items() %}
+        <div class="soft-key" data-soft-key="{{ soft_key }}">
+          <h4>
+            {{ soft_key|capitalize }}:
+            <button class="delete-button" onclick="removeSoftKey('{{ soft_key }}')">Удалить {{ soft_key }}</button>
+            <button type="button" class="toggle-button" onclick="toggleEmailList('{{ soft_key }}')">-</button>
+          </h4>
+
+          <div id="email_list_{{ soft_key }}" class="email-list" style="display: none;">
+            {% for email in soft_value %}
+            <label class="tooltip">
+              <div class="input-container">
+                <input type="text" name="email_{{ soft_key }}" value="{{ email }}">
+                <button class="delete-button" onclick="removeField(this)">Удалить</button>
+              </div>
+              <span class="tooltiptext">Можно либо отредактировать, либо удалить получателя</span>
+             </label>
+
+            {% endfor %}
+            <label class="tooltip">
+            <div class="input-container">
+              <input type="text" id="new_email_{{ soft_key }}" name="new_email_{{ soft_key }}">
+              <button class="add-button-soft" onclick="add_email_Field('{{ soft_key }}')">Добавить</button>
+            </div>
+              <span class="tooltiptext">Можно добавить получателя</span>
+             </label>
+
+          </div>
+        </div>
+      {% endfor %}
+
+    <div class="input-container">
+      <input type="text" id="new_soft_key_input" name="new_soft_key_input">
+      <button class="add-button" onclick="addField()">Добавить софт</button>
+    </div>
+    </div>
+        </div>
+      </div>
+    <center><input type="submit" value="Сохранить"></center>
+  </form>
+{% endblock %}
